@@ -1,0 +1,8 @@
+numpy>=1.16.4
+pandas>=0.24.2
+fastai=1.0.55
+plotly>=4.2.0
+regex>=2018.01.10
+matminer>=0.5.8
+tqdm>=4.32.2
+Equation>=1.2.1
