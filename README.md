@@ -10,7 +10,7 @@ To install the project with pip, run the follow command:
 pip install -e git+https://github.com/auroralht/hallucination
 ```
 
-Pre-trained models are stored in google drive. Download the file `learner.zip` from from the [drive](). After downing the file copy it to `hallucination/hallucination` and extract it. Five folders: `BravaisEsmMetal`, `BravaisEsmOxide`, `BravaisEsmWhole`, `LatticeParam`, and `SpaceGroup` should be in the `hallucination/hallucination/learner` directory after the extraction is completed.
+Pre-trained models are stored in google drive. Download the file `learner.zip` from from the [drive](https://drive.google.com/file/d/1s9OkrBRTSWTvufSia-ee625zR73bgBDA/view?usp=sharing). After downing the file copy it to `hallucination/hallucination` and extract it. Five folders: `BravaisEsmMetal`, `BravaisEsmOxide`, `BravaisEsmWhole`, `LatticeParam`, and `SpaceGroup` should be in the `hallucination/hallucination/learner` directory after the extraction is completed.
 
 ## Dependancy
 
