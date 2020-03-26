@@ -1,16 +1,20 @@
-# Hallucination
+# Crystinn
 
-The Hallucination project introduces an alternative way to perform fast estimation on Crystal Structure Information (Bravais Lattice, Space Group, and Latice Parameter) with the power of neural networks. 
+The Neural Network for CRystal STructure Information (CRYSTINN) project introduces an alternative way to perform fast estimation on Crystal Structure Information (Bravais Lattice, Space Group, and Latice Parameter) with the power of neural networks. 
 
 ## Installation
 
 **Note:** **Python 3.6** or later is required. We recommand using [CONDA environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
 To install the project with pip, run the follow command:
 ```bash
-pip install -e git+https://github.com/auroralht/hallucination
+cd 
+wget https://github.com/auroralht/cryspnet
+cd cryspnet
+pip install -e .
+# pip install -e git+https://github.com/auroralht/cryspnet
 ```
 
-Pre-trained models are stored in google drive. Download the file `learner.zip` from from the [drive](https://drive.google.com/file/d/1s9OkrBRTSWTvufSia-ee625zR73bgBDA/view?usp=sharing). After downing the file copy it to `hallucination/hallucination` and extract it. Five folders: `BravaisEsmMetal`, `BravaisEsmOxide`, `BravaisEsmWhole`, `LatticeParam`, and `SpaceGroup` should be in the `hallucination/hallucination/learner` directory after the extraction is completed.
+Pre-trained models are stored in google drive. Download the file `learner.zip` from from the [drive](https://drive.google.com/file/d/1s9OkrBRTSWTvufSia-ee625zR73bgBDA/view?usp=sharing). After downing the file copy it to `cryspnet/cryspnet` and extract it. Five folders: `BravaisEsmMetal`, `BravaisEsmOxide`, `BravaisEsmWhole`, `LatticeParam`, and `SpaceGroup` should be in the `cryspnet/cryspnet/learner` directory after the extraction is completed.
 
 ## Dependancy
 
@@ -36,9 +40,9 @@ Pre-trained models are stored in google drive. Download the file `learner.zip` f
 Input requirement: The input would be stored in a csv like file with
 a column name called formula. 
 
-Here is an example of running prediction on formula listed in [demo.csv](https://github.com/auroralht/hallucination/demo/demo.csv)
+Here is an example of running prediction on formula listed in [demo.csv](https://github.com/auroralht/crystinn/demo/demo.csv)
 ```bash
-    cd hallucination
+    cd cryspnet
     python predict.py -i demo/demo.csv -o output/output.csv 
 ```
 
@@ -62,7 +66,7 @@ The package is wrapper of fastai learner, and is easy to use. The following exam
 
 ```python
 import pandas as pd
-from hallucination.models import *
+from cryspnet.models import *
 
 formula = pd.read_csv("demo/demo.csv")
 BE= load_Bravais_models()

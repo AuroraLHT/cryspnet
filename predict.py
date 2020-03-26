@@ -1,6 +1,6 @@
-from hallucination.utils import *
-from hallucination.models import *
-from hallucination.config import *
+from crystinn.utils import *
+from crystinn.models import *
+from crystinn.config import *
 
 import argparse
 

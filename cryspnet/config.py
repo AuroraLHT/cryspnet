@@ -63,22 +63,22 @@ SPACE_GROUP_MODELS = {
 }
 
 
-BRAVAIS_LATTICE = [    
-    "cubic (F)",
-    "cubic (I)",
-    "cubic (P)",
-    "hexagonal (P)",
-    "monoclinic (C)",
-    "monoclinic (P)",
-    "orthorhombic (C)",
-    "orthorhombic (F)",
-    "orthorhombic (I)",
-    "orthorhombic (P)",
-    "rhombohedral (P)",
-    "tetragonal (I)",
-    "tetragonal (P)",
-    "triclinic (P)"
-    ]
+BRAVAIS_LATTICE = [
+     'cubic (I)',
+     'cubic (F)',
+     'cubic (P)',
+     'hexagonal (P)',
+     'rhombohedral (P)',
+     'tetragonal (I)',
+     'tetragonal (P)',
+     'orthorhombic (I)',
+     'orthorhombic (F)',
+     'orthorhombic (C)',
+     'orthorhombic (P)',
+     'monoclinic (C)',
+     'monoclinic (P)',
+     'triclinic (P)'
+]
 
 PRED_COLS = {
     "cubic (P)" : ['a'],

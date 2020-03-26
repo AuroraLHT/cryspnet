@@ -127,7 +127,14 @@ demo/smallholdout/*
 demo/mp*.csv
 
 # learner
-hallucination/learner
+cryspnet/learner/*
 
 # notebook
 Notebook/Notdemo
+
+# README example
+README_example.md
+README_pytorch.md
+
+# old version
+*.old
