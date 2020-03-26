@@ -1,17 +1,16 @@
-# Crystinn
+# CRYSPNet
 
-The Neural Network for CRystal STructure Information (CRYSTINN) project introduces an alternative way to perform fast estimation on Crystal Structure Information (Bravais Lattice, Space Group, and Latice Parameter) with the power of neural networks. 
+The Crystal Structure Predictions via Neural Network (CRYSPNet) project introduces an alternative way to perform fast estimation on Crystal Structure Information (Bravais Lattice, Space Group, and Latice Parameter) with the power of neural networks. 
 
 ## Installation
 
 **Note:** **Python 3.6** or later is required. We recommand using [CONDA environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
-To install the project with pip, run the follow command:
+To install the project with pip and git, run the following commands:
 ```bash
-cd 
-wget https://github.com/auroralht/cryspnet
-cd cryspnet
-pip install -e .
-# pip install -e git+https://github.com/auroralht/cryspnet
+    cd 
+    git clone https://github.com/auroralht/cryspnet.git
+    cd cryspnet
+    pip install -e .
 ```
 
 Pre-trained models are stored in google drive. Download the file `learner.zip` from from the [drive](https://drive.google.com/file/d/1s9OkrBRTSWTvufSia-ee625zR73bgBDA/view?usp=sharing). After downing the file copy it to `cryspnet/cryspnet` and extract it. Five folders: `BravaisEsmMetal`, `BravaisEsmOxide`, `BravaisEsmWhole`, `LatticeParam`, and `SpaceGroup` should be in the `cryspnet/cryspnet/learner` directory after the extraction is completed.

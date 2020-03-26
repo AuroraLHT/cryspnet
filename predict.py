@@ -1,6 +1,6 @@
-from crystinn.utils import *
-from crystinn.models import *
-from crystinn.config import *
+from cryspnet.utils import *
+from cryspnet.models import *
+from cryspnet.config import *
 
 import argparse
 
