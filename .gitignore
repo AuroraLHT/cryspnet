@@ -120,6 +120,7 @@ README_pytorch.md
 
 # output
 output/*
+!output/.gitkeep
 
 # demo
 demo/smallholdout
@@ -128,6 +129,7 @@ demo/mp*.csv
 
 # learner
 cryspnet/learner/*
+!cryspnet/learner/.gitkeep
 
 # notebook
 Notebook/Notdemo
