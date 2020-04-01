@@ -1,6 +1,6 @@
 # CRYSPNet
 
-The Crystal Structure Predictions via Neural Network (CRYSPNet) project introduces an alternative way to perform fast estimation on Crystal Structure Information (Bravais Lattice, Space Group, and Latice Parameter) with the power of neural networks. 
+The Crystal Structure Prediction Network ([CRYSPNet](https://arxiv.org/abs/2003.14328)) project introduces an alternative way to perform fast prediction on Crystal Structure Information (Bravais Lattice, Space Group, and Latice Parameter) with the power of neural networks. 
 
 ## Installation
 
@@ -31,15 +31,12 @@ Pre-trained models are stored in google drive. Download the file `learner.zip` f
     pip install jupyterlab
 ```
 
- is used to generate material descriptor. To install:
-
-
 ## Usage
 
 Input requirement: The input would be stored in a csv like file with
 a column name called formula. 
 
-Here is an example of running prediction on formula listed in [demo.csv](https://github.com/auroralht/crystinn/demo/demo.csv)
+Here is an example of running prediction on formula listed in [demo.csv](https://github.com/AuroraLHT/cryspnet/tree/master/demo)
 ```bash
     cd cryspnet
     python predict.py -i demo/demo.csv -o output/output.csv 
@@ -84,7 +81,7 @@ spacegroup_probs, spacegroup = SGB.predicts(ext_magpie, topn_spacegroup=1)
 latticeparameter = LPB.predicts(ext_magpie)
 ```
 
-More **examples** could be finded in [Notebook](https://github.com/auroralht/hallucination/demo/).
+More **examples** could be finded in [Notebook](https://github.com/AuroraLHT/cryspnet/tree/master/Notebook).
 
 ## History
 
