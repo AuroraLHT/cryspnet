@@ -4,7 +4,7 @@ The Crystal Structure Predictions via Neural Network (CRYSPNet) project introduc
 
 ## Installation
 
-**Note:** **Python 3.6** or later is required. We recommand using [CONDA environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
+**Note:** **Python 3.6** or later is required. Since Fastai library does not support Windows, the following installation only works on linux-based environment. We recommand using [CONDA environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) to create a new environment for this installation.
 To install the project with pip and git, run the following commands:
 ```bash
     cd 
@@ -45,18 +45,20 @@ Here is an example of running prediction on formula listed in [demo.csv](https:/
     python predict.py -i demo/demo.csv -o output/output.csv 
 ```
 
-A more detailed argument is shown below:
+You can also use the Bravais lattice model trained on Metal or Oxide compound by:
+
 ```bash
-    python predict.py  \
-        -i demo/demo.csv \ # input directory
-        -o output/output.csv \ # output directory
-        --use_metal \ # use models trained only on metal entries
-        --use_oxide \ # use models trained only on oxide entries
-        --n_ensembler 5 \ # number of models used to predict Bravais
-        --topn_bravais 2 \ # get top-n result (Bravais Lattice)
-        --topn_spacegroup 3 \ # get top-n result (Space Group)
-        --batch_size 256 \ # batchsize, reduce if leak of memory 
-        --no_cuda \ # forcely run on cpu
+    python predict.py -i demo/demo.csv -o output/output.csv --use_metal
+    python predict.py -i demo/demo.csv -o output/output.csv --use_oxide 
+```
+
+You could also change the `topn_bravais` and `topn_spacegroup` to see more or less top-N prediction from the Bravais lattice and space group models.
+```bash
+    python predict.py 
+        -i demo/demo.csv \
+        -o output/output.csv \
+        --topn_bravais 2 \
+        --topn_spacegroup 3 \
 ```
 
 ## As Library
@@ -73,13 +75,13 @@ LPB= load_Lattice_models()
 SGB= load_SpaceGroup_models()
 
 FG = FeatureGenerator()
-ext_magpie = FG(formula)
+predictors = FG(formula)
 
-bra_probs, bravais = BE.predicts(ext_magpie, topn_bravais=1)
-ext_magpie['bravais'] = bravais
+bravais_probs, bravais = BE.predicts(ext_magpie, topn_bravais=1)
+predictors['bravais'] = bravais
 
-sg_probs, sg = SGB.predicts(ext_magpie, topn_spacegroup=1)
-lp = LPB.predicts(ext_magpie)
+spacegroup_probs, spacegroup = SGB.predicts(ext_magpie, topn_spacegroup=1)
+latticeparameter = LPB.predicts(ext_magpie)
 ```
 
 More **examples** could be finded in [Notebook](https://github.com/auroralht/hallucination/demo/).
