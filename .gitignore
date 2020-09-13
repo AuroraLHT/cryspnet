@@ -140,3 +140,6 @@ README_pytorch.md
 
 # old version
 *.old
+
+# other file
+other/*
