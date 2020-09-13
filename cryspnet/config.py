@@ -43,6 +43,8 @@ LATTICE_PARAM_MODELS = {
 
 LATTICE_NORM = "lattice_norm.pkl"
 
+LATTICE_PARAM_ERROR = "error.pkl"
+
 SPACE_GROUP_MODELS_FOLDER = "SpaceGroup"
 
 SPACE_GROUP_MODELS = {

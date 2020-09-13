@@ -1,58 +1,10 @@
-from cryspnet.utils import *
-from cryspnet.models import *
+from cryspnet.utils import FeatureGenerator, load_input, dump_output, group_outputs
+from cryspnet.models import load_Bravais_models, load_Lattice_models, load_SpaceGroup_models
 from cryspnet.config import *
 
 import argparse
 
-FG = FeatureGenerator()
-
-def load_input(path):
-    path = Path(path)
-    if path.suffix == ".csv":
-        data = pd.read_csv(str(path), index_col=False)
-
-    elif path.suffix == ".xlsx" or path.suffix == ".xls":
-        xls = pd.ExcelFile(path)
-        sheets = [xls.parse(sheet_name) for sheet_name in xls.sheet_names]
-        data = pd.concat(sheets, axis=0)
-
-    else:
-        # we hope the best here
-        data = pd.read_csv(path, delimiter= r'\s+', index_col=False, header=None)
-
-    assert data.shape[1] == 1, "the input is not formula and has multiple dimension, plz check the input"
-    data.columns = ['formula']
-    return data
-
-def dump_output(output, path, **args):
-    output.to_csv(path, **args)
-
-def group_outputs(bravais, bravais_probs, spacegroups, spacegroups_probs, lattices, formula):
-    topn_bravais = bravais.shape[1]
-    topn_spacegroup = spacegroups[0].shape[1]
-
-    inner_columns =  ["Bravais", "Bravais prob"] + \
-        LATTICE_PARAM_NAMES + ['v'] + \
-        [f"Top-{i+1} SpaceGroup" for i in range(topn_spacegroup) ] + \
-        [f"Top-{i+1} SpaceGroup prob" for i in range(topn_spacegroup) ]
-
-    idxs = [('formula', "-")]+ [ (f"Top-{i+1} Bravais", c) for i in range(topn_bravais) for c in inner_columns ]
-
-    idxs = pd.MultiIndex.from_tuples(idxs)
-    out = pd.DataFrame(columns = idxs)
-
-    out['formula'] = formula['formula']
-
-    for i in range(topn_bravais):
-        out[f"Top-{i+1} Bravais", "Bravais"] = bravais[:, i]
-        out[f"Top-{i+1} Bravais", "Bravais prob"] = bravais_probs[:, i]
-        for j in range(topn_spacegroup):
-            out[f"Top-{i+1} Bravais", f"Top-{j+1} SpaceGroup"] = spacegroups[i][:, j].astype(int)
-            out[f"Top-{i+1} Bravais", f"Top-{j+1} SpaceGroup prob"] = spacegroups_probs[i][:, j]
-        out.loc[:, (f"Top-{i+1} Bravais", lattices[i].columns) ]  =  lattices[i].values
-
-    return out
-
+featurizer = FeatureGenerator()
 
 def main():
 
@@ -105,7 +57,7 @@ def main():
     SGB = load_SpaceGroup_models(batch_size = args.batch_size)
 
     formula = load_input(args.input)
-    ext_magpie = FG.generate(formula)
+    ext_magpie = featurizer.generate(formula)
 
     bravais_probs, bravais = BE.predicts(ext_magpie, topn_bravais=args.topn_bravais)
 

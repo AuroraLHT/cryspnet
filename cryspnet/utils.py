@@ -30,10 +30,12 @@ from matminer.featurizers.composition import ElementProperty
 
 from matminer.featurizers.base import MultipleFeaturizer
 from matminer.featurizers import composition as cf
-from matminer.featurizers.conversions import StrToComposition
+
+from .config import *
 
 import Equation # math expression parser
 
+from typing import List
 
 # pytorch stuff
 def to_np(x):
@@ -57,14 +59,80 @@ NON_METAL_ELEMENTS = set(["H", "He", "B", "C", "N", "O", "F", "Ne",
 
 METAL_ELEMENTS = ELEMENTS - NON_METAL_ELEMENTS
 
-def is_oxide(x):
+def is_oxide(x:str)->bool:
     return len(re.findall("O[0-9]", x))>0
 
-def is_metal(x):
+def is_metal(x:str)->bool:
     return set(re.findall(r"([A-Za-z]+)[0-9\.]*", x)).issubset(METAL_ELEMENTS)
 
-def has_metal(x):
+def has_metal(x:str)->bool:
     return len(set(re.findall(r"([A-Za-z]+)[0-9\.]*", x)) & METAL_ELEMENTS)>0
+
+def load_input(path:str)->pd.DataFrame:
+    """
+        Load the formula information from file designated by the path argument
+        Currently supported format: .csv .xlsx .xls and space seperated text file
+    """
+
+    path = Path(path)
+    if path.suffix == ".csv":
+        data = pd.read_csv(str(path), index_col=False)
+
+    elif path.suffix == ".xlsx" or path.suffix == ".xls":
+        xls = pd.ExcelFile(path)
+        sheets = [xls.parse(sheet_name) for sheet_name in xls.sheet_names]
+        data = pd.concat(sheets, axis=0)
+
+    else:
+        # we hope the best here
+        data = pd.read_csv(path, delimiter= r'\s+', index_col=False, header=None)
+
+    assert data.shape[1] == 1, "the input is not formula and has multiple dimension, plz check the input"
+    data.columns = ['formula']
+    return data
+
+def dump_output(output:pd.DataFrame, path:str, **args)->None:
+    """
+        Save the output to csv
+    """
+    output.to_csv(path, **args)
+
+def group_outputs(bravais:np.array, bravais_probs:np.array, spacegroups:List[np.array], spacegroups_probs:List[np.array], lattices:List[pd.DataFrame], formula:pd.DataFrame)->pd.DataFrame:
+    """
+        Group Bravais Lattice predictions, Space Group predictions, and Lattice Parameters predictions into a dataframe
+
+        Arguements:
+            bravais : bravais lattice prediction from BravaisEnsembleModel
+            bravais_probs : the associated probabilities of B.L from BravaisEnsembleModel
+            spacegroups : space group prediction from SpaceGroupModelBundle
+            spacegroups_probs : the associated probabilities of S.G from SpaceGroupModelBundle
+            lattices : lattice parameter prediction from LatticeParamModelBundle
+            formula : a DataFrame contains a column "formula" for each predicted entry
+    """
+    topn_bravais = bravais.shape[1]
+    topn_spacegroup = spacegroups[0].shape[1]
+
+    inner_columns =  ["Bravais", "Bravais prob"] + \
+        LATTICE_PARAM_NAMES + ['v'] + \
+        [f"Top-{i+1} SpaceGroup" for i in range(topn_spacegroup) ] + \
+        [f"Top-{i+1} SpaceGroup prob" for i in range(topn_spacegroup) ]
+
+    idxs = [('formula', "-")]+ [ (f"Top-{i+1} Bravais", c) for i in range(topn_bravais) for c in inner_columns ]
+
+    idxs = pd.MultiIndex.from_tuples(idxs)
+    out = pd.DataFrame(columns = idxs)
+
+    out['formula'] = formula['formula']
+
+    for i in range(topn_bravais):
+        out[f"Top-{i+1} Bravais", "Bravais"] = bravais[:, i]
+        out[f"Top-{i+1} Bravais", "Bravais prob"] = bravais_probs[:, i]
+        for j in range(topn_spacegroup):
+            out[f"Top-{i+1} Bravais", f"Top-{j+1} SpaceGroup"] = spacegroups[i][:, j].astype(int)
+            out[f"Top-{i+1} Bravais", f"Top-{j+1} SpaceGroup prob"] = spacegroups_probs[i][:, j]
+        out.loc[:, (f"Top-{i+1} Bravais", lattices[i].columns) ]  =  lattices[i].values
+
+    return out
 
 # plotting ternary
 def ternary_trace(x, y, z, type="scatter", color=None, name=None, size=23, prop=0.9, symbol="hexagon", note=None, colorscale=None, colorbar=None, cmin=None, cmax=None, addline=False):
@@ -152,7 +220,6 @@ def tri_grid(n, xr=(0,1), yr=(0,1), zr=(0,1)):
                 yield (c1, c2, 1-c1-c2)
 
 
-
 VAR_SYMBOLS = {"x", "y", "z"}
 
 def get_vars(comp_formulas):
@@ -203,8 +270,10 @@ class CompoundBundle:
     def __getitem__(self, key):
         return self.compounds[key]
 
-
 class FeatureGenerator:
+    """
+        A wraper class to generate multiple type of elemental features
+    """
     def __init__(self):
         self.feature_calculators = MultipleFeaturizer([
             cf.ElementProperty.from_preset(preset_name="magpie"),
@@ -217,16 +286,16 @@ class FeatureGenerator:
 
         self.str2composition = StrToComposition()
         
-    def generate(self, fake_df, ignore_errors=False):
+    def generate(self, df:pd.DataFrame, ignore_errors:bool=False):
         """
             generate feature from a dataframe with a "formula" column that contains 
             chemical formulas of the compositions.
         """
-        fake_df = self.str2composition.featurize_dataframe(fake_df, "formula", ignore_errors=ignore_errors)
-        fake_df = fake_df.dropna()
-        fake_df = self.feature_calculators.featurize_dataframe(fake_df, col_id='composition', ignore_errors=ignore_errors);
-        fake_df["NComp"] = fake_df["composition"].apply(len)
-        return fake_df
+        df = self.str2composition.featurize_dataframe(df, "formula", ignore_errors=ignore_errors)
+        df = df.dropna()
+        df = self.feature_calculators.featurize_dataframe(df, col_id='composition', ignore_errors=ignore_errors);
+        df["NComp"] = df["composition"].apply(len)
+        return df
 
 class MultiCompFeatureGenerator(FeatureGenerator):
     def __init__(self, n=50):
@@ -282,7 +351,7 @@ class SingleCompFeatureGenerator(FeatureGenerator):
         search_sheet['formula'] = [composition_format.format(*row) for row in np.stack(compositions, axis=1)]
         return self.generate(pd.DataFrame(search_sheet))
     
-def alias_lookup(name):
+def alias_lookup(name:str)->str:
     
     alias_book = defaultdict(lambda : None,
     cubic_F = "fcc",
