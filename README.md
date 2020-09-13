@@ -58,8 +58,8 @@ You could also change the `topn_bravais` and `topn_spacegroup` to see more or le
 ```
 
 The output is stored in .csv format with the first two rows as header. The layout of output is shown by this example:
-| formula      | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais |
-| ---  | ---- | --- | ---  | ---- | ---| ---  | ---- | --- | ---  | ---- | --- | ---  | ---- | --- |
+| formula | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais | Top-1 Bravais |
+| ------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------  | ------- |------ | ------------- | ------------- |
 | -      | Bravais | Bravais prob | a | b | c | alpha | beta | gamma | v | Top-1 SpaceGroup | Top-2 SpaceGroup | Top-1 SpaceGroup prob | Top-2 SpaceGroup prob |
 | Co15Ga2Pr2 | rhombohedral (P)        | 0.847  | 6.50 | 6.50 | 6.50 | 86.4 | 86.4 | 86.4 | 274 | 166 | 160 | 0.98 | 0.01 |
 
