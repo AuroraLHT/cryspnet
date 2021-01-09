@@ -1,36 +1,6 @@
 # CRYSPNet
 
-The Crystal Structure Prediction Network ([CRYSPNet](https://arxiv.org/abs/2003.14328)) project introduces an alternative way to perform fast prediction on Crystal Structure Information (Bravais Lattice, Space Group, and Lattice Parameter) with the power of neural networks. 
-
-## Update
-The library has moved from fastai v1 to fastai v2; thus Bravais Lattice, Lattice Parameters and Space Group models are retrained. Please download the latest models from [here](https://drive.google.com/file/d/1rpbV2-mnNj3M16-4BKvhuo5pkeoIY96q/view?usp=sharing). The link to the [old](https://drive.google.com/file/d/1s9OkrBRTSWTvufSia-ee625zR73bgBDA/view?usp=sharing) version.
-
-To update the library itself:
-```bash
-    cd cryspnet
-    git pull
-    pip install -r requirements.txt
-```
-
-## About fastai
-**If you are not interested in training your model, then you can skip this part**
-
-**This section would be removed after they fixed this issue in the next release version**
-
-The current fastai v2 tabular modulus has data leakage issues when trying to export the learner. The fix is only made in the development repository. To install:
-```bash
-    git clone https://github.com/fastai/fastai
-    pip install -e "fastai[dev]"
-```
-
-One more patch is also needed to fully fix the leakage. Please add this script to the beginning of the training notebook:
-```python
-    @patch
-    def setups(self:FillMissing, dsets):
-        missing = pd.isnull(dsets.conts).any()
-        store_attr(but='dsets', na_dict={n:self.fill_strategy(dsets[n], self.fill_vals[n]) for n in missing[missing].keys()})
-        self.fill_strategy = self.fill_strategy.__name__
-```
+The Crystal Structure Prediction Network ([CRYSPNet](hhttps://journals.aps.org/prmaterials/abstract/10.1103/PhysRevMaterials.4.123802)) project introduces an alternative way to perform fast prediction on Crystal Structure Information (Bravais Lattice, Space Group, and Lattice Parameter) with the power of neural networks. 
 
 ## Installation
 
@@ -43,6 +13,28 @@ To install the project with pip and git, run the following commands:
 ```
 
 Pre-trained models are stored in google drive. Download the file `learner.zip` from the [drive](https://drive.google.com/file/d/1rpbV2-mnNj3M16-4BKvhuo5pkeoIY96q/view?usp=sharing). After downloading the file, pls copy it to `cryspnet/cryspnet` and extract it. Five folders: `BravaisEsmMetal`, `BravaisEsmOxide`, `BravaisEsmWhole`, `LatticeParam`, and `SpaceGroup` should be in the `cryspnet/cryspnet/learner` directory after the extraction is completed.
+
+## 🔥Update🔥 
+The library has moved from fastai v1 to fastai v2; thus Bravais Lattice, Lattice Parameters and Space Group models are retrained. Please **download** the latest models from [here](https://drive.google.com/file/d/1rpbV2-mnNj3M16-4BKvhuo5pkeoIY96q/view?usp=sharing). The link to the [old](https://drive.google.com/file/d/1s9OkrBRTSWTvufSia-ee625zR73bgBDA/view?usp=sharing) version.
+
+To update the library itself:
+```bash
+    cd cryspnet
+    git pull
+    pip install -r requirements.txt
+```
+
+## ⚠️About fastai⚠️
+*If you are not interested in training your model, then you can skip this part*
+
+*This section would be removed after they fixed this issue in the next release version*
+
+The current fastai v2 tabular modulus has data leakage issues when trying to export the learner. The fix is only made in the development repository. To install:
+```bash
+    pip uninstall fastai
+    git clone https://github.com/fastai/fastai
+    pip install -e "fastai[dev]"
+```
 
 ## Dependancy
 
@@ -60,7 +52,7 @@ Pre-trained models are stored in google drive. Download the file `learner.zip` f
     pip install jupyterlab
 ```
 
-(optional) When running through the notebook, a tqdm issue might raise, saying IProcess is not found. It could be solved by install the [Jupyter Widgets](https://ipywidgets.readthedocs.io/en/stable/user_install.html) 
+(⚠️ISSUE⚠️) When running through the notebook, a tqdm issue might raise, saying IProcess is not found. It could be solved by installing the [Jupyter Widgets](https://ipywidgets.readthedocs.io/en/stable/user_install.html) 
 
 ### conda install
 ```bash
@@ -138,6 +130,10 @@ The package is a wrapper of fastai learner, and is easy to use. The following ex
 ```
 
 More **examples** could be finded in [Notebook](https://github.com/AuroraLHT/cryspnet/tree/master/Notebook).
+
+## 🌟Train Your Own CRYSPNET🌟
+We provide three notebooks: [TrainBravais](https://github.com/AuroraLHT/cryspnet/tree/master/Notebook/TrainBravais.ipynb), [TrainSpaceGroup](https://github.com/AuroraLHT/cryspnet/tree/master/Notebook/TrainSpaceGroup.ipynb), and [TrainLattice](https://github.com/AuroraLHT/cryspnet/tree/master/Notebook/TrainLattice.ipynb) to showcase the training process of each component. 
+
 
 ## Randan Crystal Generation with PyXtal
 
