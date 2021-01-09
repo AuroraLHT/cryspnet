@@ -134,6 +134,9 @@ cryspnet/learner/*
 # notebook
 Notebook/Notdemo
 
+# temporary files
+tmp/*
+
 # README example
 README_example.md
 README_pytorch.md
