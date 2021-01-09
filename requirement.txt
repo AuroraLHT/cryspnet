@@ -1,6 +1,8 @@
 numpy>=1.16.4
 pandas>=0.24.2
-fastai==1.0.55
+torch>=1.6.0
+torchvision>=0.7.0
+fastai>=2.0.13
 plotly>=4.2.0
 regex>=2018.01.10
 matminer>=0.5.8

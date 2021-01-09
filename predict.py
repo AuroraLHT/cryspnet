@@ -1,4 +1,4 @@
-from cryspnet.utils import FeatureGenerator, load_input, dump_output, group_outputs
+from cryspnet.utils import FeatureGenerator, load_input, dump_output, group_outputs, topkacc
 from cryspnet.models import load_Bravais_models, load_Lattice_models, load_SpaceGroup_models
 from cryspnet.config import *
 

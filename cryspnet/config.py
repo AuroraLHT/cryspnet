@@ -25,20 +25,20 @@ LATTICE_PARAM_NAMES = ['a', 'b', 'c', 'alpha', 'beta','gamma']
 LATTICE_PARAM_MODELS_FOLDER = "LatticeParam"
 
 LATTICE_PARAM_MODELS = {
-    'cubic (F)': 'cubic_F.pkl',
-    'cubic (I)': 'cubic_I.pkl',
-    'cubic (P)': 'cubic.pkl',
-    'hexagonal (P)': 'hexagonal.pkl',
-    'monoclinic (C)': 'monoclinic_C.pkl',
-    'monoclinic (P)': 'monoclinic.pkl',
-    'orthorhombic (C)': 'orthorhombic_C.pkl',
-    'orthorhombic (F)': 'orthorhombic_F.pkl',
-    'orthorhombic (I)': 'orthorhombic_I.pkl',
-    'orthorhombic (P)': 'orthorhombic.pkl',
-    'rhombohedral (P)': 'rhombohedral.pkl',
-    'tetragonal (I)': 'tetragonal_I.pkl',
-    'tetragonal (P)': 'tetragonal.pkl',
-    'triclinic (P)': 'triclinic.pkl'
+    'cubic (F)': 'cubic (F).pkl',
+    'cubic (I)': 'cubic (I).pkl',
+    'cubic (P)': 'cubic (P).pkl',
+    'hexagonal (P)': 'hexagonal (P).pkl',
+    'monoclinic (C)': 'monoclinic (C).pkl',
+    'monoclinic (P)': 'monoclinic (P).pkl',
+    'orthorhombic (C)': 'orthorhombic (C).pkl',
+    'orthorhombic (F)': 'orthorhombic (F).pkl',
+    'orthorhombic (I)': 'orthorhombic (I).pkl',
+    'orthorhombic (P)': 'orthorhombic (P).pkl',
+    'rhombohedral (P)': 'rhombohedral (P).pkl',
+    'tetragonal (I)': 'tetragonal (I).pkl',
+    'tetragonal (P)': 'tetragonal (P).pkl',
+    'triclinic (P)': 'triclinic (P).pkl'
 }
 
 LATTICE_NORM = "lattice_norm.pkl"
@@ -48,20 +48,20 @@ LATTICE_PARAM_ERROR = "error.pkl"
 SPACE_GROUP_MODELS_FOLDER = "SpaceGroup"
 
 SPACE_GROUP_MODELS = {
-    'cubic (F)': 'cubic_F.pkl',
-    'cubic (I)': 'cubic_I.pkl',
-    'cubic (P)': 'cubic.pkl',
-    'hexagonal (P)': 'hexagonal.pkl',
-    'monoclinic (C)': 'monoclinic_C.pkl',
-    'monoclinic (P)': 'monoclinic.pkl',
-    'orthorhombic (C)': 'orthorhombic_C.pkl',
-    'orthorhombic (F)': 'orthorhombic_F.pkl',
-    'orthorhombic (I)': 'orthorhombic_I.pkl',
-    'orthorhombic (P)': 'orthorhombic.pkl',
-    'rhombohedral (P)': 'rhombohedral.pkl',
-    'tetragonal (I)': 'tetragonal_I.pkl',
-    'tetragonal (P)': 'tetragonal.pkl',
-    'triclinic (P)': 'triclinic.pkl'
+    'cubic (F)': 'cubic (F).pkl',
+    'cubic (I)': 'cubic (I).pkl',
+    'cubic (P)': 'cubic (P).pkl',
+    'hexagonal (P)': 'hexagonal (P).pkl',
+    'monoclinic (C)': 'monoclinic (C).pkl',
+    'monoclinic (P)': 'monoclinic (P).pkl',
+    'orthorhombic (C)': 'orthorhombic (C).pkl',
+    'orthorhombic (F)': 'orthorhombic (F).pkl',
+    'orthorhombic (I)': 'orthorhombic (I).pkl',
+    'orthorhombic (P)': 'orthorhombic (P).pkl',
+    'rhombohedral (P)': 'rhombohedral (P).pkl',
+    'tetragonal (I)': 'tetragonal (I).pkl',
+    'tetragonal (P)': 'tetragonal (P).pkl',
+    'triclinic (P)': 'triclinic (P).pkl'
 }
 
 

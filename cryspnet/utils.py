@@ -16,15 +16,10 @@ from tqdm import tqdm_notebook
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 # from sklearn.metrics import confusion_matrix
 
-import torch
-from fastai.basic_data import DatasetType
-from fastai.basic_train import load_learner
-
-# import plotly
-# import plotly.plotly as py
+# import torch
 import plotly.graph_objs as go
 
-# Author logan
+# Matminer: Author logan
 from matminer.featurizers.conversions import StrToComposition
 from matminer.featurizers.composition import ElementProperty
 
@@ -36,6 +31,9 @@ from .config import *
 import Equation # math expression parser
 
 from typing import List
+
+__all__ = ["to_np", "ELEMENTS", "NON_METAL_ELEMENTS", "METAL_ELEMENTS", "is_oxide", "is_metal", "has_metal",
+        "load_input", "dump_output", "group_outputs", "topkacc", "FeatureGenerator", "oversample"]
 
 # pytorch stuff
 def to_np(x):
@@ -133,6 +131,52 @@ def group_outputs(bravais:np.array, bravais_probs:np.array, spacegroups:List[np.
         out.loc[:, (f"Top-{i+1} Bravais", lattices[i].columns) ]  =  lattices[i].values
 
     return out
+
+# top-k accuracy, since fastaiv2's top-k acc metric is currently not working 
+def topkacc(inp, targ, k=5, axis=-1):
+    "Computes the Top-k accuracy (`targ` is in the top `k` predictions of `inp`)"
+    inp = inp.topk(k=k, dim=axis)[1]
+    if inp.ndim >= targ.ndim:
+        targ = targ.expand_as(inp)
+    return (inp == targ).sum(dim=-1).float().mean()
+
+def oversample(df, val_idx, dep_var, nsamples):
+    """ Perform oversampling on a dataframe given a target columns 
+        The target columns should be categorical and this function
+        would make sure each class has a minimum number of population
+        in the dataframe
+
+        Args:
+            df : a dataframe
+            val_idx : validation index that would not sampled from
+            dep_var : the target column the oversample would based on
+            nsamples : the minimum sample that a classes should have
+
+    """
+
+
+    df = df.copy()
+    df_val = df.loc[val_idx].reset_index(drop=True)
+    df_train = df.drop(val_idx, axis=0)
+    
+    n = nsamples
+    resampled = []
+    groups = df_train.groupby(dep_var)
+    for n, g in groups:
+        if len(g)<nsamples:
+            n = min( nsamples, 10 * len(g) )
+            resampled.append(g.sample(n=n,replace=True))
+        else:
+            resampled.append(g)
+            
+    resampled = pd.concat(resampled, axis=0)
+    resampled = resampled.reset_index(drop=True)
+    
+    val_idx = np.arange( len(resampled)+1, len(resampled)+len(df_val)) 
+    resampled = pd.concat((resampled, df_val), axis=0, ignore_index=True)
+    resampled = resampled.reset_index(drop=True)
+    
+    return resampled, val_idx
 
 # plotting ternary
 def ternary_trace(x, y, z, type="scatter", color=None, name=None, size=23, prop=0.9, symbol="hexagon", note=None, colorscale=None, colorbar=None, cmin=None, cmax=None, addline=False):
@@ -286,15 +330,22 @@ class FeatureGenerator:
 
         self.str2composition = StrToComposition()
         
-    def generate(self, df:pd.DataFrame, ignore_errors:bool=False):
+    def generate(self, df:pd.DataFrame, ignore_errors:bool=False, drop_mode=True):
         """
             generate feature from a dataframe with a "formula" column that contains 
             chemical formulas of the compositions.
+
+            df : a dataframe with a column name formula
+            ignore_errors : ignore errors when generating features
+            drop_mode : drop property that generated from mode aggregation function
+
         """
         df = self.str2composition.featurize_dataframe(df, "formula", ignore_errors=ignore_errors)
         df = df.dropna()
         df = self.feature_calculators.featurize_dataframe(df, col_id='composition', ignore_errors=ignore_errors);
         df["NComp"] = df["composition"].apply(len)
+        if drop_mode :
+            df = df.drop(columns= [ c for c in df.columns if "mode" in c and c.startswith("Magpie") ] )
         return df
 
 class MultiCompFeatureGenerator(FeatureGenerator):

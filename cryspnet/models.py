@@ -1,7 +1,8 @@
 import torch
-from fastai.tabular import LabelLists, TabularList, is_pathlike, defaults
-from fastai.basic_data import DatasetType
-from fastai.basic_train import load_callback
+# from fastai.tabular import LabelLists, TabularList, is_pathlike, defaults
+# from fastai.basic_data import DatasetType
+# from fastai.basic_train import load_callback
+from fastai.tabular.all import load_learner, accuracy
 
 import pickle
 
@@ -10,23 +11,23 @@ import pandas as pd
 
 from pathlib import Path
 from .config import *
-from .utils import to_np
+from .utils import to_np, topkacc
 
 from typing import Tuple, Dict, Union, List
 
-def load_Bravais_models(n_ensembler:int = N_ESMBLER, which:str="whole", batch_size:int = BATCHSIZE)->torch.nn.Module:
+def load_Bravais_models(n_ensembler:int = N_ESMBLER, which:str="whole", batch_size:int = BATCHSIZE, cpu:bool=False)->torch.nn.Module:
     models_dir = Path(LEARNER) / Path(BRAVAIS_MODELS_FOLDER[which])
-    BE = BravaisEnsembleModel.from_folder(str(models_dir), n=n_ensembler, batch_size=batch_size)
+    BE = BravaisEnsembleModel.from_folder(str(models_dir), n=n_ensembler, batch_size=batch_size, cpu=cpu)
     return BE
 
-def load_Lattice_models(batch_size:int = BATCHSIZE)->torch.nn.Module:
+def load_Lattice_models(batch_size:int = BATCHSIZE, cpu:bool=False)->torch.nn.Module:
     models_dir = Path(LEARNER) / Path(LATTICE_PARAM_MODELS_FOLDER)
-    LPB = LatticeParamModelBundle.from_folder(str(models_dir), batch_size=batch_size)
+    LPB = LatticeParamModelBundle.from_folder(str(models_dir), batch_size=batch_size, cpu=cpu)
     return LPB
 
-def load_SpaceGroup_models(batch_size:int = BATCHSIZE)->torch.nn.Module:
+def load_SpaceGroup_models(batch_size:int = BATCHSIZE, cpu:bool=False)->torch.nn.Module:
     models_dir = Path(LEARNER) / Path(SPACE_GROUP_MODELS_FOLDER)
-    SGB = SpaceGroupModelBundle.from_folder(str(models_dir), batch_size=batch_size)
+    SGB = SpaceGroupModelBundle.from_folder(str(models_dir), batch_size=batch_size, cpu=cpu)
     return SGB
 
 def top_n(preds:np.ndarray, n:int)->np.ndarray:
@@ -126,30 +127,19 @@ class Model:
         base class for loading a single pytorch model from pre-trained weights
     """
 
-    def __init__(self, path:Union[Path, str], file:Union[Path, str], batch_size:int):
+    def __init__(self, file_name:Union[Path, str], batch_size:int, cpu:bool=True):
         # adopted from fastai.load_learner
-        source = Path(path)/file if is_pathlike(file) else file
-        state = torch.load(source, map_location='cpu') if defaults.device == torch.device('cpu') else torch.load(source)
-        self.model = state.pop('model')
-        self.src = LabelLists.load_state(path, state.pop('data'))
-        self.cb_state = state.pop('cb_state')
-        self.clas_func = state.pop('cls')
-        self.callback_fns = state['callback_fns']
-        self.state = state
+        self.learn = load_learner(file_name, cpu=cpu)
         self.batch_size = batch_size
-                
+
     def load(self, ext_magpie:pd.DataFrame, **db_kwargs):
         # adopted from fastai.load_learner
-        self.src.add_test(TabularList.from_df(ext_magpie), tfm_y=None,)
-        data = self.src.databunch(bs=self.batch_size, **db_kwargs)
-        res = self.clas_func(data, self.model, **self.state)
-        res.callback_fns = self.callback_fns #to avoid duplicates
-        res.callbacks = [load_callback(c,s, res) for c,s in self.cb_state.items()]
-        self.learn = res
+        dl = self.learn.dls.test_dl(ext_magpie, bs=self.batch_size)
+        self.dl = dl
         return self
 
     def get_preds(self):
-        return self.learn.get_preds(ds_type=DatasetType.Test)[0]
+        return self.learn.get_preds(dl=self.dl)[0]
     
     def p2o(self, preds:torch.Tensor, **args):
         return to_np(preds)
@@ -161,12 +151,13 @@ class Model:
 class BravaisModel(Model):
     """A single model for predicting Bravais Lattice"""
 
-    def __init__(self, path:Union[Path, str], file:Union[Path, str], batch_size:int=BATCHSIZE):
-        super().__init__(path, file, batch_size)
+    def __init__(self, file_name:Union[Path, str], batch_size:int=BATCHSIZE, cpu:bool=False):
+        super().__init__(file_name, batch_size, cpu=cpu)
     
     @property
     def classes(self,):
-        return self.learn.data.classes
+        # return self.learn.data.classes
+        return self.learn.classes # stored previously by training script
     
     def p2o(self, preds:torch.Tensor, n:int=1, **args)->Tuple[np.ndarray, np.ndarray]:
         preds = super().p2o(preds, **args)
@@ -180,12 +171,12 @@ class BravaisModel(Model):
 class SpaceGroupModel(Model):
     """A single model for predicting Space Group"""
 
-    def __init__(self, path:Union[Path, str], file:Union[Path, str], batch_size:int):
-        super().__init__(path, file, batch_size)
+    def __init__(self, file_name:Union[Path, str], batch_size:int, cpu:bool=False):
+        super().__init__(file_name, batch_size, cpu=cpu)
     
     @property
     def classes(self,):
-        return self.learn.data.classes
+        return self.learn.classes
     
     def p2o(self, preds:torch.Tensor, n:int=1, **args)->Tuple[np.ndarray, np.ndarray]:
         preds = super().p2o(preds, **args)
@@ -200,8 +191,8 @@ class SpaceGroupModel(Model):
 class LatticeParamModel(Model):
     """A single model for predicting Lattice Parameters"""
 
-    def __init__(self, path:Union[Path, str], file:Union[Path, str], norm:Dict[str, np.ndarray], batch_size:int):
-        super().__init__(path, file, batch_size)
+    def __init__(self, filename:Union[Path, str], norm:Dict[str, np.ndarray], batch_size:int, cpu:bool=False):
+        super().__init__(filename, batch_size, cpu=cpu)
         self.norm = norm
     
     def label_denorm(self, preds:torch.Tensor):
@@ -238,11 +229,15 @@ class BravaisEnsembleModel(EnsembleModel):
     _esm_prefix = BRAVAIS_ENSEMBLER_PREFIX
 
     @classmethod
-    def from_folder(cls, folder:Union[Path, str], n:int=5, batch_size:int=BATCHSIZE):
+    def from_folder(cls, folder:Union[Path, str], n:int=5, batch_size:int=BATCHSIZE, cpu:bool=False):
         Ms = []
+        folder = Path(folder)
+        if not folder.exists(): raise FileNotFoundError(str(folder))
+
         for i in range(n):
-            file = f"{cls._esm_prefix}{i}.pkl"
-            Ms.append(BravaisModel(folder, file, batch_size))
+            filename =  Path(folder) / f"{cls._esm_prefix}{i}.pkl"
+            if not folder.exists(): raise FileNotFoundError(str(filename))
+            Ms.append(BravaisModel( filename, batch_size, cpu=cpu))
         return cls(Ms)
         
     @property
@@ -299,20 +294,26 @@ class LatticeParamModelBundle(BLSpliterBundle):
     _norms = LATTICE_NORM
     
     @classmethod
-    def from_folder(cls, folder:Union[Path, str], batch_size:int = BATCHSIZE):
+    def from_folder(cls, folder:Union[Path, str], batch_size:int = BATCHSIZE, cpu:bool=False):
         LPMs = {}
-        with (Path(folder)/cls._norms).open("rb") as f:
+
+        folder = Path(folder)
+        if not folder.exists() : raise FileExistsError(folder)
+
+        with (folder/cls._norms).open("rb") as f:
             norms = pickle.load(f)
-            
+
         for name in BRAVAIS_LATTICE:
             path = cls._LatticeParamModels[name]
-            LPMs[name] = LatticeParamModel(folder, path, norms[name], batch_size)
+            filename = folder / path
+            if not filename.exists() : raise FileExistsError(filename)
+            LPMs[name] = LatticeParamModel(filename, norms[name], batch_size, cpu=cpu)
         return cls(LPMs)
     
     def p2o(self, preds:Dict[str, torch.Tensor], **args):
         preds = super().p2o(preds, **args)
         out = pd.DataFrame(
-            np.zeros((self.data_size,7)),
+            np.zeros((self.data_size, 7)),
             columns = self._columns+['v'],
             index = self.widx,
         )
@@ -328,11 +329,16 @@ class SpaceGroupModelBundle(BLSpliterBundle):
 
     _SpaceGroupModels = SPACE_GROUP_MODELS
     @classmethod
-    def from_folder(cls, folder:Union[Path, str], batch_size:int = BATCHSIZE):
+    def from_folder(cls, folder:Union[Path, str], batch_size:int = BATCHSIZE, cpu:bool=False):
         SGMs = {}
+        folder = Path(folder)
+        if not folder.exists(): raise FileExistsError(folder)
+
         for name in BRAVAIS_LATTICE:
             path = cls._SpaceGroupModels[name]
-            SGMs[name] = SpaceGroupModel(folder, path, batch_size)
+            filename = folder / path
+            if not filename.exists(): raise FileExistsError(filename)
+            SGMs[name] = SpaceGroupModel(filename, batch_size, cpu=cpu)
         return cls(SGMs)
     
     def p2o(self, preds:Dict[str, torch.Tensor], **args):
