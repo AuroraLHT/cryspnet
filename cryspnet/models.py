@@ -346,8 +346,8 @@ class SpaceGroupModelBundle(BLSpliterBundle):
         # output topN probability and classes 
         # n = args["n"] if "n" in args.keys() else 1
         n = args["n"]
-        outs = np.zeros((self.data_size, n) if n > 1 else self.data_size)
-        outs_probs = np.zeros((self.data_size, n) if n > 1 else self.data_size)
+        outs = np.zeros((self.data_size, n))
+        outs_probs = np.zeros((self.data_size, n))
         for name, idx in self.idxs.items():
             prob, sg = preds[name]
             prob, sg = _pad_sg_out(prob, sg, n)
