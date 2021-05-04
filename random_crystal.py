@@ -97,9 +97,9 @@ def is_stoi(formula:str):
 
 def decomp(formula:str):
     """ parse formula into elements and stoichiometric """
-    groups = re.findall("([A-Za-z]{1,2})([0-9]+)", formula)
-    
-    elements, stois = list( zip(*groups) )
+    comp = Composition(formula)
+    comp = comp.as_dict()
+    elements, stois = list(zip(*comp.items()))
     stois = list(map(int, stois))
     return elements, stois
 
