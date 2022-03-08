@@ -38,8 +38,8 @@ def main():
 
     args = parser.parse_args()
 
-    if args.no_cuda:
-        defaults.device = torch.device('cpu')
+    use_cpu = args.no_cuda
+    
     if args.use_metal and args.use_oxide:
         raise Exception("Could only select --use_metal or --use_oxide")
     elif args.use_metal:
@@ -52,9 +52,11 @@ def main():
     BE = load_Bravais_models(
             n_ensembler = args.n_ensembler,
             which = which,
-            batch_size = args.batch_size)
-    LPB = load_Lattice_models(batch_size = args.batch_size)
-    SGB = load_SpaceGroup_models(batch_size = args.batch_size)
+            batch_size = args.batch_size,
+            cpu=use_cpu
+    )
+    LPB = load_Lattice_models(batch_size = args.batch_size, cpu=use_cpu)
+    SGB = load_SpaceGroup_models(batch_size = args.batch_size, cpu=use_cpu)
 
     formula = load_input(args.input)
     ext_magpie = featurizer.generate(formula)
