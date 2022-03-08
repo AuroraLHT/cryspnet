@@ -2,9 +2,10 @@ numpy>=1.16.4
 pandas>=0.24.2
 torch>=1.6.0
 torchvision>=0.7.0
-fastai>=2.0.13
+fastai==2.5.2
 plotly>=4.2.0
 regex>=2018.01.10
-matminer>=0.5.8
+matminer==0.6.5
+pymatgen==2021.2.16
 tqdm>=4.32.2
 Equation>=1.2.1
